@@ -37,7 +37,9 @@ $BASE_PATH/update.sh "$REPO_URL" "$REPO_BRANCH" "$BASE_PATH/$BUILD_DIR" "$COMMIT
 
 \cp -f "$CONFIG_FILE" "$BASE_PATH/$BUILD_DIR/.config"
 
+chmod +x ./diy_script.sh
 cd "$BASE_PATH/$BUILD_DIR"
+$GITHUB_WORKSPACE/diy_script.sh
 make defconfig
 
 if [[ $Build_Mod == "debug" ]]; then
