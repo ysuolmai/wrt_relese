@@ -109,7 +109,10 @@ jobs:
 
       - name: Delete Old Cache
         run: |
-          gh cache delete --key ${{ inputs.runs-on }}-${{ hashFiles('**/repo_flag') }}-
+          caches=$(gh cache list --key ${{ inputs.runs-on }}-${{ hashFiles('**/repo_flag') }}- --json key --jq '.[] | .key')
+          for key in $caches; do
+            gh cache delete $key
+          done
 
       - name: Prepare Release Body
         run: |
