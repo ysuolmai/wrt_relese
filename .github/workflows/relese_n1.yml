@@ -104,6 +104,9 @@ jobs:
           for key in $caches; do
             gh cache delete $key
           done
+          echo "========cache status========"
+          echo "ccache: $(du -sh ./action_build/.ccache | cut -f 1)"
+          echo "staging: $(du -sh ./action_build/staging_dir | cut -f 1)"
 
       - name: Package OpenWrt Firmware
         uses: unifreq/openwrt_packit@master
