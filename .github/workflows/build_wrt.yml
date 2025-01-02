@@ -105,12 +105,12 @@ jobs:
       - name: Build Firmware
         run: ./build.sh ${{ inputs.model }}
 
+      - name: Delete Old Cache
+        run: |
+          gh cache delete --key ${{ inputs.runs-on }}-${{ hashFiles('**/repo_flag') }}-
+
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BUILD_DATE }}_${{ inputs.model }}
           path: ./firmware/*.*
-
-      - name: Delete Old Cache
-        run: |
-          gh cache delete --key ${{ inputs.runs-on }}-${{ hashFiles('**/repo_flag') }}-
