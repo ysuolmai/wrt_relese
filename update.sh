@@ -204,11 +204,15 @@ fix_mk_def_depends() {
 add_wifi_default_set() {
     local ipq60xx_uci_dir="$BUILD_DIR/target/linux/qualcommax/ipq60xx/base-files/etc/uci-defaults"
     local ipq807x_uci_dir="$BUILD_DIR/target/linux/qualcommax/ipq807x/base-files/etc/uci-defaults"
+    local filogic_uci_dir="$BUILD_DIR/target/linux/mediatek/filogic/base-files/etc/uci-defaults"
     if [ -d "$ipq60xx_uci_dir" ]; then
         install -Dm755 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$ipq60xx_uci_dir/992_set-wifi-uci.sh"
     fi
     if [ -d "$ipq807x_uci_dir" ]; then
         install -Dm755 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$ipq807x_uci_dir/992_set-wifi-uci.sh"
+    fi
+    if [ -d "$filogic_uci_dir" ]; then
+        install -Dm755 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$filogic_uci_dir/992_set-wifi-uci.sh"
     fi
 }
 
@@ -253,9 +257,10 @@ remove_something_nss_kmod() {
 }
 
 remove_affinity_script() {
-    local affinity_script_path="$BUILD_DIR/target/linux/qualcommax/ipq60xx/base-files/etc/init.d/set-irq-affinity"
-    if [ -f "$affinity_script_path" ]; then
-        \rm -f "$affinity_script_path"
+    local affinity_script_dir="$BUILD_DIR/target/linux/qualcommax"
+
+    if [ -d "$affinity_script_dir" ]; then
+        find "$affinity_script_dir" -name "set-irq-affinity" -exec rm -f {} \;
     fi
 }
 
