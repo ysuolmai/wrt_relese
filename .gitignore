@@ -14,3 +14,5 @@ deconfig/test.config
 .vscode/settings.json
 deconfig/*.bak
 test.sh
+domain_rule.json
+01-install.sh
