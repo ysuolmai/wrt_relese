@@ -133,8 +133,8 @@ install_small8() {
         luci-app-passwall alist luci-app-alist smartdns luci-app-smartdns v2dat mosdns luci-app-mosdns \
         adguardhome luci-app-adguardhome ddns-go luci-app-ddns-go taskd luci-lib-xterm luci-lib-taskd \
         luci-app-store quickstart luci-app-quickstart luci-app-istorex luci-app-cloudflarespeedtest \
-        luci-theme-argon netdata luci-app-netdata lucky luci-app-lucky luci-app-openclash mihomo \
-        luci-app-mihomo luci-app-homeproxy luci-app-amlogic
+        luci-theme-argon netdata luci-app-netdata lucky luci-app-lucky luci-app-openclash luci-app-homeproxy \
+        luci-app-amlogic nikki luci-app-nikki
 }
 
 install_feeds() {
@@ -254,11 +254,13 @@ remove_something_nss_kmod() {
     fi
 }
 
-remove_affinity_script() {
+update_affinity_script() {
     local affinity_script_dir="$BUILD_DIR/target/linux/qualcommax"
 
     if [ -d "$affinity_script_dir" ]; then
         find "$affinity_script_dir" -name "set-irq-affinity" -exec rm -f {} \;
+        find "$affinity_script_dir" -name "smp_affinity" -exec rm -f {} \;
+        install -Dm755 "$BASE_PATH/patches/smp_affinity" "$affinity_script_dir/base-files/etc/init.d/smp_affinity"
     fi
 }
 
@@ -491,6 +493,92 @@ update_dnsmasq_conf() {
     fi
 }
 
+# 更新版本
+update_package() {
+    local dir="$BUILD_DIR/feeds/$1"
+    local mk_path="$dir/Makefile"
+    if [ -d "${mk_path%/*}" ] && [ -f "$mk_path" ]; then
+        # 提取repo
+        local PKG_REPO=$(grep -oE "^PKG_SOURCE_URL.*tar\.gz" $mk_path | awk -F"/" '{print $(NF - 2) "/" $(NF -1 )}')
+        if [ -z $PKG_REPO ]; then
+            return 1
+        fi
+        local PKG_VER=$(curl -sL "https://api.github.com/repos/$PKG_REPO/releases" | jq -r "map(select(.prerelease|not)) | first | .tag_name")
+        local PKG_HASH=$(curl -sL "https://codeload.github.com/$PKG_REPO/tar.gz/$PKG_VER" | sha256sum | cut -b -64)
+
+        # 删除PKG_VER开头的v
+        PKG_VER=${PKG_VER#v}
+
+        sed -i 's/^PKG_VERSION:=.*/PKG_VERSION:='$PKG_VER'/g' $mk_path
+        sed -i 's/^PKG_HASH:=.*/PKG_HASH:='$PKG_HASH'/g' $mk_path
+    fi
+}
+
+update_lucky() {
+    local mk_dir="$BUILD_DIR/feeds/small8/lucky/Makefile"
+    if [ -d "${mk_dir%/*}" ] && [ -f "$mk_dir" ]; then
+        sed -i '/Build\/Prepare/ a\	[ -f $(TOPDIR)/../patches/lucky_Linux_$(LUCKY_ARCH).tar.gz ] && install -Dm644 $(TOPDIR)/../patches/lucky_Linux_$(LUCKY_ARCH).tar.gz $(PKG_BUILD_DIR)/$(PKG_NAME)_$(PKG_VERSION)_Linux_$(LUCKY_ARCH).tar.gz' "$mk_dir"
+        sed -i '/wget/d' "$mk_dir"
+    fi
+}
+
+# 添加系统升级时的备份信息
+function add_backup_info_to_sysupgrade() {
+    local conf_path="$BUILD_DIR/package/base-files/files/etc/sysupgrade.conf"
+
+    if [ -f "$conf_path" ]; then
+        cat >"$conf_path" <<'EOF'
+/etc/AdGuardHome.yaml
+/etc/lucky/
+EOF
+    fi
+}
+
+# 更新启动顺序
+function update_script_priority() {
+    # 更新qca-nss驱动的启动顺序
+    local qca_drv_path="$BUILD_DIR/package/feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
+    if [ -d "${qca_drv_path%/*}" ] && [ -f "$qca_drv_path" ]; then
+        sed -i 's/START=.*/START=88/g' "$qca_drv_path"
+    fi
+
+    # 更新pbuf服务的启动顺序
+    local pbuf_path="$BUILD_DIR/package/kernel/mac80211/files/qca-nss-pbuf.init"
+    if [ -d "${pbuf_path%/*}" ] && [ -f "$pbuf_path" ]; then
+        sed -i 's/START=.*/START=89/g' "$pbuf_path"
+    fi
+
+    # 更新mosdns服务的启动顺序
+    local mosdns_path="$BUILD_DIR/package/feeds/small8/luci-app-mosdns/root/etc/init.d/mosdns"
+    if [ -d "${mosdns_path%/*}" ] && [ -f "$mosdns_path" ]; then
+        sed -i 's/START=.*/START=94/g' "$mosdns_path"
+    fi
+}
+
+function optimize_smartDNS() {
+    local smartdns_custom="$BUILD_DIR/feeds/small8/smartdns/conf/custom.conf"
+    local smartdns_patch="$BUILD_DIR/feeds/small8/smartdns/patches/010_change_start_order.patch"
+    install -Dm644 "$BASE_PATH/patches/010_change_start_order.patch" "$smartdns_patch"
+
+    # 检查配置文件所在的目录和文件是否存在
+    if [ -d "${smartdns_custom%/*}" ] && [ -f "$smartdns_custom" ]; then
+        # 优化配置选项：
+        # serve-expired-ttl: 缓存有效期(单位：小时)，默认值影响DNS解析速度
+        # serve-expired-reply-ttl: 过期回复TTL
+        # max-reply-ip-num: 最大IP数
+        # dualstack-ip-selection-threshold: IPv6优先的阈值
+        # server: 配置上游DNS
+        echo "优化SmartDNS配置"
+        cat >"$smartdns_custom" <<'EOF'
+serve-expired-ttl 7200
+serve-expired-reply-ttl 5
+max-reply-ip-num 3
+dualstack-ip-selection-threshold 15
+server 223.5.5.5 -bootstrap-dns
+EOF
+    fi
+}
+
 main() {
     clone_repo
     clean_up
@@ -507,7 +595,7 @@ main() {
     add_wifi_default_set
     update_default_lan_addr
     remove_something_nss_kmod
-    remove_affinity_script
+    update_affinity_script
     fix_build_for_openssl
     update_ath11k_fw
     # fix_mkpkg_format_invalid
@@ -525,7 +613,12 @@ main() {
     update_menu_location
     fix_compile_coremark
     update_dnsmasq_conf
+    # update_lucky
+    add_backup_info_to_sysupgrade
+    optimize_smartDNS
     install_feeds
+    update_package "small8/sing-box"
+    update_script_priority
 }
 
 main "$@"

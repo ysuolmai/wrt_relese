@@ -17,6 +17,8 @@ on:
           - jdcloud_ipq60xx_libwrt
           - n1_immwrt
           - redmi_ax5_immwrt
+          - redmi_ax6_immwrt
+          - redmi_ax6_libwrt
           - redmi_ax6000_immwrt21
           - zn_m2_libwrt
           - x64_immwrt
@@ -37,18 +39,20 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Free Disk Space
-        uses: FirelightFlagboy/gh-runner-free-disk-space@main
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v5
         with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          remove-large-packages: "true"
+          remove-cached-tools: "true"
+          remove-swapfile: "true"
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Initialization Environment
         env:
