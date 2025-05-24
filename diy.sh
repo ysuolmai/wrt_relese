@@ -1,7 +1,7 @@
 #!/bin/bash
 FIRMWARE_TAG=$1
-BASE_PATH=$(cd $(dirname $0) && pwd)
-BUILD_DIR=$(read_ini_by_key "BUILD_DIR")
+BASE_PATH=$2
+BUILD_DIR=$3
 echo $BUILD_DIR
 cd $BASE_PATH/$BUILD_DIR
 
