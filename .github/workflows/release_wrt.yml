@@ -8,14 +8,14 @@ on:
         required: true
         description: Device Model
         type: choice
-        default: jdcloudr_ipq60xx_NOWIFI_libwrt
+        default: jdcloud_ipq60xx_NOWIFI_libwrt
         options:
           - aliyun_ap8220_immwrt
           - cmcc_rax3000m_immwrt
           - jdcloud_ax6000_immwrt
           - jdcloud_ipq60xx_immwrt
-          - jdcloudr_ipq60xx_libwrt
-          - jdcloudr_ipq60xx_NOWIFI_libwrt
+          - jdcloud_ipq60xx_libwrt
+          - jdcloud_ipq60xx_NOWIFI_libwrt
           - n1_immwrt
           - redmi_ax5_immwrt
           - redmi_ax6_immwrt
