@@ -301,3 +301,5 @@ if [[ -d ./feeds/packages/lang/golang ]]; then
 	\rm -rf ./feeds/packages/lang/golang
 	git clone $GOLANG_REPO -b $GOLANG_BRANCH ./feeds/packages/lang/golang
 fi
+
+make defconfig
