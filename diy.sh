@@ -97,7 +97,7 @@ UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 keywords_to_delete=(
     "xiaomi_ax3600" "xiaomi_ax9000" "xiaomi_ax1800" "glinet" "jdcloud_ax6600"
     "mr7350" "uugamebooster" "luci-app-wol" "luci-i18n-wol-zh-cn" "CONFIG_TARGET_INITRAMFS" "ddns" "LSUSB" "mihomo"
-    "smartdns" "kucat" "bootstrap"
+    "smartdns" "kucat" "bootstrap" "mosdns" "quickstart"
 )
 
 
@@ -196,9 +196,6 @@ if [[ "$FIRMWARE_TAG" != *"jdcloud"* && "$FIRMWARE_TAG" == *"NOWIFI"* && "$FIRMW
 fi
 
 
-rm package/kernel/mac80211/patches/nss/ath11k/999-902-ath11k-fix-WDS-by-disabling-nwds.patch
-rm package/kernel/mac80211/patches/nss/subsys/{999-775-wifi-mac80211-Changes-for-WDS-MLD.patch,999-922-mac80211-fix-null-chanctx-warning-for-NSS-dynamic-VLAN.patch}
-
 [[ $FIRMWARE_TAG == *"jdcloud"* ]] && provided_config_lines+=(
     "CONFIG_PACKAGE_luci-app-diskman=y"
     "CONFIG_PACKAGE_luci-i18n-diskman-zh-cn=y"
@@ -264,9 +261,6 @@ for line in "${provided_config_lines[@]}"; do
     echo "$line" >> .config
 done
 
-
-rm ./target/linux/qualcommax/patches-6.12/0083-v6.11-arm64-dts-qcom-ipq6018-add-sdhci-node.patch
-
 #./scripts/feeds update -a
 #./scripts/feeds install -a
 
@@ -292,14 +286,5 @@ sed -i "/define Package\/default-settings\/install/a\\
 sed -i "/exit 0/i\\
 [ -f \'/etc/99-distfeeds.conf\' ] && mv \'/etc/99-distfeeds.conf\' \'/etc/opkg/distfeeds.conf\'\n\
 sed -ri \'/check_signature/s@^[^#]@#&@\' /etc/opkg.conf\n" "package/emortal/default-settings/files/99-default-settings"
-
-
-#update golang
-GOLANG_REPO="https://github.com/sbwml/packages_lang_golang"
-GOLANG_BRANCH="24.x"
-if [[ -d ./feeds/packages/lang/golang ]]; then
-	\rm -rf ./feeds/packages/lang/golang
-	git clone $GOLANG_REPO -b $GOLANG_BRANCH ./feeds/packages/lang/golang
-fi
 
 make defconfig
