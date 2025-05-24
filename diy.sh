@@ -1,6 +1,7 @@
 #!/bin/bash
 FIRMWARE_TAG=$1
-cd $BUILD_DIR
+BASE_PATH=$(cd $(dirname $0) && pwd)
+cd $BASE_PATH/$BUILD_DIR
 
 #安装和更新软件包
 UPDATE_PACKAGE() {
