@@ -94,21 +94,6 @@ UPDATE_PACKAGE "speedtest-cli" "https://github.com/sbwml/openwrt_pkgs.git" "main
 UPDATE_PACKAGE "luci-app-adguardhome" "https://github.com/ysuolmai/luci-app-adguardhome.git" "master"
 UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 
-keywords_to_delete=(
-    "xiaomi_ax3600" "xiaomi_ax9000" "xiaomi_ax1800" "glinet" "jdcloud_ax6600"
-    "mr7350" "uugamebooster" "luci-app-wol" "luci-i18n-wol-zh-cn" "CONFIG_TARGET_INITRAMFS" "ddns" "LSUSB" "mihomo"
-    "smartdns" "kucat" "bootstrap" "mosdns" "quickstart" "istorex" "store"
-)
-
-
-[[ $FIRMWARE_TAG == *"NOWIFI"* ]] && keywords_to_delete+=("wpa" "hostapd" "wifi" "wireless")
-#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "jdcloud_ax1800-pro" "redmi_ax5-jdcloud")
-#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "disk")
-#[[ $FIRMWARE_TAG == *"EMMC"* ]] && keywords_to_delete+=("cmiot_ax18" "qihoo_v6" "redmi_ax5=y" "zn_m2")
-
-for keyword in "${keywords_to_delete[@]}"; do
-    sed -i "/$keyword/d" ./.config
-done
 
 # Configuration lines to append to .config
 provided_config_lines=(
@@ -261,4 +246,20 @@ sed -i "/exit 0/i\\
 [ -f \'/etc/99-distfeeds.conf\' ] && mv \'/etc/99-distfeeds.conf\' \'/etc/opkg/distfeeds.conf\'\n\
 sed -ri \'/check_signature/s@^[^#]@#&@\' /etc/opkg.conf\n" "package/emortal/default-settings/files/99-default-settings"
 
-#make defconfig
+make defconfig
+
+
+keywords_to_delete=(
+    "luci-app-wol" "luci-i18n-wol-zh-cn" "CONFIG_TARGET_INITRAMFS" "LSUSB" "mihomo"
+    "smartdns" "kucat" "bootstrap" "mosdns" "quickstart" "istorex" "store"
+)
+
+
+[[ $FIRMWARE_TAG == *"NOWIFI"* ]] && keywords_to_delete+=("wpa" "hostapd" "wifi" "wireless" "ath11k")
+#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "jdcloud_ax1800-pro" "redmi_ax5-jdcloud")
+#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "disk")
+#[[ $FIRMWARE_TAG == *"EMMC"* ]] && keywords_to_delete+=("cmiot_ax18" "qihoo_v6" "redmi_ax5=y" "zn_m2")
+
+for keyword in "${keywords_to_delete[@]}"; do
+    sed -i "/$keyword/d" ./.config
+done
