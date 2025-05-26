@@ -94,6 +94,21 @@ UPDATE_PACKAGE "speedtest-cli" "https://github.com/sbwml/openwrt_pkgs.git" "main
 UPDATE_PACKAGE "luci-app-adguardhome" "https://github.com/ysuolmai/luci-app-adguardhome.git" "master"
 UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 
+keywords_to_delete=(
+    "luci-app-wol" "luci-i18n-wol-zh-cn" "CONFIG_TARGET_INITRAMFS" "LSUSB" "mihomo"
+    "smartdns" "kucat" "bootstrap" "mosdns" "quickstart" "istorex" "store"
+)
+
+
+#[[ $FIRMWARE_TAG == *"NOWIFI"* ]] && keywords_to_delete+=("wpa" "hostapd" "wifi" "wireless" "ath11k" "80211" "kmod-qcom-qmi-helpers")
+#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "jdcloud_ax1800-pro" "redmi_ax5-jdcloud")
+#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "disk")
+#[[ $FIRMWARE_TAG == *"EMMC"* ]] && keywords_to_delete+=("cmiot_ax18" "qihoo_v6" "redmi_ax5=y" "zn_m2")
+
+for keyword in "${keywords_to_delete[@]}"; do
+    sed -i "/$keyword/d" ./.config
+done
+
 
 # Configuration lines to append to .config
 provided_config_lines=(
@@ -249,129 +264,3 @@ sed -ri \'/check_signature/s@^[^#]@#&@\' /etc/opkg.conf\n" "package/emortal/defa
 make defconfig
 
 
-keywords_to_delete=(
-    "luci-app-wol" "luci-i18n-wol-zh-cn" "CONFIG_TARGET_INITRAMFS" "LSUSB" "mihomo"
-    "smartdns" "kucat" "bootstrap" "mosdns" "quickstart" "istorex" "store"
-)
-
-
-#[[ $FIRMWARE_TAG == *"NOWIFI"* ]] && keywords_to_delete+=("wpa" "hostapd" "wifi" "wireless" "ath11k" "80211" "kmod-qcom-qmi-helpers")
-#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "jdcloud_ax1800-pro" "redmi_ax5-jdcloud")
-#[[ $FIRMWARE_TAG != *"EMMC"* ]] && keywords_to_delete+=("samba" "autosamba" "disk")
-#[[ $FIRMWARE_TAG == *"EMMC"* ]] && keywords_to_delete+=("cmiot_ax18" "qihoo_v6" "redmi_ax5=y" "zn_m2")
-
-for keyword in "${keywords_to_delete[@]}"; do
-    sed -i "/$keyword/d" ./.config
-done
-
-CONFIG_FILE=./.config
-CONFIG_FILE=./.config
-if [[ $FIRMWARE_TAG == *"NOWIFI"* ]]; then
-  wifi_config_keys=(
-    "CONFIG_DEFAULT_ath11k-firmware-ipq6018"
-    "CONFIG_MODULE_DEFAULT_ath11k-firmware-ipq6018"
-    "CONFIG_MODULE_DEFAULT_ath11k-firmware-qcn9074"
-    "CONFIG_MODULE_DEFAULT_ipq-wifi-jdcloud_re-cs-02"
-    "CONFIG_MODULE_DEFAULT_ipq-wifi-jdcloud_re-ss-01"
-    "CONFIG_MODULE_DEFAULT_ipq-wifi-redmi_ax5-jdcloud"
-    "CONFIG_DEFAULT_iwinfo"
-    "CONFIG_MODULE_DEFAULT_iwinfo"
-    "CONFIG_DEFAULT_kmod-ath11k"
-    "CONFIG_MODULE_DEFAULT_kmod-ath11k"
-    "CONFIG_DEFAULT_kmod-ath11k-ahb"
-    "CONFIG_MODULE_DEFAULT_kmod-ath11k-ahb"
-    "CONFIG_DEFAULT_kmod-ath11k-pci"
-    "CONFIG_MODULE_DEFAULT_kmod-ath11k-pci"
-    "CONFIG_DEFAULT_kmod-dsa-qca8k"
-    "CONFIG_MODULE_DEFAULT_kmod-dsa-qca8k"
-    "CONFIG_DEFAULT_kmod-phy-qca83xx"
-    "CONFIG_MODULE_DEFAULT_kmod-phy-qca83xx"
-    "CONFIG_DEFAULT_kmod-qca-nss-dp"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-dp"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-bridge-mgr"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-bridge-mgr"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-igs"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-igs"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-l2tpv2"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-l2tpv2"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-lag-mgr"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-lag-mgr"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-pppoe"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-pppoe"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-pptp"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-pptp"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-qdisc"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-qdisc"
-    "CONFIG_DEFAULT_kmod-qca-nss-drv-vlan-mgr"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-drv-vlan-mgr"
-    "CONFIG_DEFAULT_kmod-qca-nss-ecm"
-    "CONFIG_MODULE_DEFAULT_kmod-qca-nss-ecm"
-    "CONFIG_MODULE_DEFAULT_luci-app-athena-led"
-    "CONFIG_MODULE_DEFAULT_luci-i18n-athena-led-zh-cn"
-    "CONFIG_DEFAULT_wpad-openssl"
-    "CONFIG_MODULE_DEFAULT_wpad-openssl"
-    "CONFIG_BUSYBOX_DEFAULT_EXPR_MATH_SUPPORT_64"
-    "CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_PATH"
-    "CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_MATH"
-    "CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_MATH_64"
-    "CONFIG_BUSYBOX_CONFIG_EXPR_MATH_SUPPORT_64"
-    "CONFIG_BUSYBOX_CONFIG_FEATURE_FIND_PATH"
-    "CONFIG_BUSYBOX_CONFIG_FEATURE_SH_MATH"
-    "CONFIG_BUSYBOX_CONFIG_FEATURE_SH_MATH_64"
-    "CONFIG_PACKAGE_rpcd-mod-iwinfo"
-    "CONFIG_PACKAGE_wifi-scripts"
-    "CONFIG_NETJSON_MONITORING_IWINFO"
-    "CONFIG_PACKAGE_libiwinfo-data"
-    "CONFIG_PACKAGE_ipq-wifi-jdcloud_re-cs-02"
-    "CONFIG_PACKAGE_ipq-wifi-jdcloud_re-ss-01"
-    "CONFIG_PACKAGE_ipq-wifi-redmi_ax5-jdcloud"
-    "CONFIG_PACKAGE_ath11k-firmware-ipq6018"
-    "CONFIG_PACKAGE_ath11k-firmware-qcn9074"
-    "CONFIG_PACKAGE_wireless-regdb"
-    "CONFIG_PACKAGE_kmod-dsa-qca8k"
-    "CONFIG_PACKAGE_kmod-phy-qca83xx"
-    "CONFIG_PACKAGE_kmod-qca-nss-dp"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv"
-    "CONFIG_NSS_DRV_WIFIOFFLOAD_ENABLE"
-    "CONFIG_NSS_DRV_WIFI_EXT_VDEV_ENABLE"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-igs"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-l2tpv2"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-lag-mgr"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-pptp"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-qdisc"
-    "CONFIG_PACKAGE_kmod-qca-nss-drv-vlan-mgr"
-    "CONFIG_PACKAGE_kmod-qca-ssdk"
-    "CONFIG_PACKAGE_kmod-qca-mcs"
-    "CONFIG_PACKAGE_kmod-qca-nss-ecm"
-    "CONFIG_PACKAGE_kmod-ath"
-    "CONFIG_ATH_USER_REGD"
-    "CONFIG_PACKAGE_ATH_DFS"
-    "CONFIG_PACKAGE_kmod-ath11k"
-    "CONFIG_ATH11K_THERMAL"
-    "CONFIG_ATH11K_DEBUGFS_STA"
-    "CONFIG_ATH11K_DEBUGFS_HTT_STATS"
-    "CONFIG_ATH11K_NSS_SUPPORT"
-    "CONFIG_ATH11K_MEM_PROFILE_512M"
-    "CONFIG_PACKAGE_kmod-ath11k-ahb"
-    "CONFIG_PACKAGE_kmod-ath11k-pci"
-    "CONFIG_PACKAGE_kmod-mac80211"
-    "CONFIG_PACKAGE_MAC80211_NSS_SUPPORT"
-    "CONFIG_PACKAGE_MAC80211_DEBUGFS"
-    "CONFIG_PACKAGE_ucode-mod-math"
-    "CONFIG_PACKAGE_libiwinfo"
-    "CONFIG_PACKAGE_luci-app-athena-led"
-    "CONFIG_PACKAGE_luci-i18n-athena-led-zh-cn"
-    "CONFIG_PACKAGE_hostapd-common"
-    "CONFIG_PACKAGE_wpad-openssl"
-    "CONFIG_PACKAGE_iwinfo"
-  )
-
-  for key in "${wifi_config_keys[@]}"; do
-    sed -i "/^$key=.*/d" "$CONFIG_FILE"
-    echo "$key=n" >> "$CONFIG_FILE"
-  done
-fi
