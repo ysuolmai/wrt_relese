@@ -262,5 +262,5 @@ sed -i "/exit 0/i\\
 sed -ri \'/check_signature/s@^[^#]@#&@\' /etc/opkg.conf\n" "package/emortal/default-settings/files/99-default-settings"
 
 make defconfig
-
+echo "CONFIG_USE_APK=n" >> .config
 
